@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" ng-app="platforms">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <!-- <link rel="stylesheet" href="../bootstrap/dist/css/bootstrap.css"> -->
+  
+  <script src="angular.min.js"></script>
+  <script src="controllers.js"></script>
+</head>
+<body ng-controller="PlatformListCtrl">
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        <!--Sidebar content-->
+
+        <!-- Search: <input ng-model="query">
+        Sort by:
+        <select ng-model="orderProp">
+          <option value="name">Alphabetical</option>
+          <option value="age">Newest</option>
+        </select> -->
+
+      </div>
+      <div class="col-md-10">
+        <!--Body content-->
+        <h2> ALMOST </h2>
+
+         <ul>
+          <!-- <li ng-repeat="phone in phones"> -->
+          <li ng-repeat= "(name,doc) in phones">  
+            <p>{{name}}</p>
+            <p>{{doc}}</p>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
