@@ -40,13 +40,11 @@ var ChartView = Backbone.View.extend({
       _.bindAll(this, "render", "drawChart");
     
       var self = this;
-      var fakeChart= new FakeChartCollection();
+      this.fakeChart= new FakeChartCollection();
       console.log("Fetching collection");
-      fakeChart.fetch({
+      this.fakeChart.fetch({
         success: function(collection, response, options) {
-          self.fakeChart= collection;
-//          this.drawchart();
-          this.render(); 
+          self.render(); 
         }  
       });  
 
@@ -90,11 +88,11 @@ var ChartView = Backbone.View.extend({
         legend: 'none',
       };
 
-      var chart = new google.visualization.LineChart(this.el);
+      this.chart = new google.visualization.LineChart(this.el);
 
       console.log("Before draw");
 
-      chart.draw(data, options_points);
+      this.chart.draw(data, options_points);
     
       console.log("After draw");
 
@@ -103,7 +101,7 @@ var ChartView = Backbone.View.extend({
     render: function() {
       console.log("Render called");
       this.$el.html(this.template());
-      console.log("Render called before set on load callback");
-      google.setOnLoadCallback(this.drawChart);
+      console.log("Calling drawChart");
+      this.drawChart();
     }
 });

@@ -45,18 +45,45 @@
     </div>
   </div>
 </div>
+
+
+
 <script type="text/javascript">
 
+_.extend(OOI.prototype, Backbone.Events, {
+  start: function() {
+    this.navbar = new NavbarView();
+    $('body').prepend(this.navbar.el);
+    
+    // Charview 1
+    this.chartView = new ChartView();
+    $('#chart-panel').html(this.chartView.el);
+    this.chartView.render();
+
+    this.chartControlView = new ChartControlView();
+    $('#control-panel').html(this.chartControlView.el);
+
+    this.listenTo(this.chartControlView, 'button:click', this.click);
+  },
+  click: function() {
+    console.log("Click received in the parent");
+    this.renderSecondChart();
+
+  },
+  renderSecondChart: function() {
+    console.log("renderSecondChart called");
+    // Chartview 2
+    this.chartView2 = new ChartView();
+    $('#chart-panel').append(this.chartView2.el);
+    this.chartView2.render();
+  }
+});
+
+var ooi = new OOI();
+
+
 $(document).ready(function() {
-  var navbar = new NavbarView();
-  $('body').prepend(navbar.el);
-  
-  var chartView = new ChartView();
-  $('#chart-panel').html(chartView.el);
-  chartView.render();
-  var chartView2 = new ChartView();
-  $('#chart-panel').append(chartView2.el);
-  chartView2.render();
+    ooi.start();
 });
 </script>
 
