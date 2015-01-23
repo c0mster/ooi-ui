@@ -95,3 +95,9 @@ def instrument_deployment_proxy():
 @app.route('/opLog.html')
 def op_log():
     return render_template("common/opLog.html")
+
+@app.route('/api/get_data')
+def get_data():
+    response = requests.get(SERVICES_URL + '/get_data', params=request.args)
+    
+    return response.text, response.status_code

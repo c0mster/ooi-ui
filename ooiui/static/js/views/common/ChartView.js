@@ -1,3 +1,4 @@
+/* global google, Backbone, _, console */
 "use strict";
 /*
  * ooiui/static/js/views/common/ChartView.js
@@ -14,62 +15,87 @@
  * Usage
  */
 
+var FakeChartCollection = Backbone.Collection.extend({
+  url: '/api/get_data?norm=25&start_time=2015-02-02&end_time=2015-02-02T00:01',
+  // url: '/api/faketable'
+  parse: function(response, options) {
+    console.log('FakeChartCollection');
+    console.log(response.rows);
+    // var adict = {};
+    // var X = response.x;
+    // var Y = response.y;
+    // adict.x = X;
+    // adict.y = Y;
+    // this.push(adict);
+    return response.rows;
+  }
+
+});    
+
+
+
 var ChartView = Backbone.View.extend({
     className: "col-sm-12",
     initialize: function() {
       _.bindAll(this, "render", "drawChart");
-      google.load('visualization', '1', {packages: ['corechart']});
+    
+      var self = this;
+      var fakeChart= new FakeChartCollection();
+      console.log("Fetching collection");
+      fakeChart.fetch({
+        success: function(collection, response, options) {
+          self.fakeChart= collection;
+//          this.drawchart();
+          this.render(); 
+        }  
+      });  
+
+  
     },
     drawChart: function() {
       console.log("drawChart called");
-
+      
       var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Time');
       data.addColumn('number', 'X');
-      data.addColumn('number', 'Dogs');
+      data.addColumn({id:'i0', type:'number', role:'interval'});
+      data.addColumn({id:'i1', type:'number', role:'interval'});
 
-      data.addRows([
-        [0, 0],   [1, 10],  [2, 23],
-        [3, 17],  [4, 18],  [5, 9],
-        [6, 11],  [7, 27],  [8, 33],
-        [9, 40],  [10, 32], [11, 35],
-        [12, 30], [13, 40], [14, 42],
-        [15, 47], [16, 44], [17, 48],
-        [18, 52], [19, 54], [20, 42],
-        [21, 55], [22, 56], [23, 57],
-        [24, 60], [25, 50], [26, 52],
-        [27, 51], [28, 49], [29, 53],
-        [30, 55], [31, 60], [32, 61],
-        [33, 59], [34, 62], [35, 65],
-        [36, 62], [37, 58], [38, 55],
-        [39, 61], [40, 64], [41, 65],
-        [42, 63], [43, 66], [44, 67],
-        [45, 69], [46, 69], [47, 70],
-        [48, 72], [49, 68], [50, 66],
-        [51, 65], [52, 67], [53, 70],
-        [54, 71], [55, 72], [56, 73],
-        [57, 75], [58, 70], [59, 68],
-        [60, 64], [61, 60], [62, 65],
-        [63, 67], [64, 68], [65, 69],
-        [66, 70], [67, 72], [68, 75],
-        [69, 80]
-      ]);
+      this.fakeChart.map(function(chart){
+        console.log(chart.get(0));
+        var date = chart.get(0);
+        var date = new Date(date * 1000);
+        var date = date.toLocaleDateString(); 
+        console.log(date);
 
-      var options = {
-        width: "100%",
-        height: 300,
-        hAxis: {
-          title: 'Time'
-        },
-        vAxis: {
-          title: 'Popularity'
-        },
-        pointSize: 4
+        var row = [date, chart.get(1),chart.get(1), chart.get(2)];
+        data.addRows([row]);
+      });
+
+
+      
+     // var gdate = new google.visualization.DateFormat({pattern: "M, dd, yy"});
+   
+      // data.addRow([new Date(2013, 1, 26), 1, 1, 0.5]);
+      // data.addRow([new Date(2013, 1, 27), 1, 0.5, 1]);
+      //gdate.format(data,0);
+
+  // Create and draw the visualization.
+      var options_points = {
+        title:'Bars, default',
+        curveType:'function',
+        lineWidth: 0,
+        series: [{'color': '#D3362D'}],
+        intervals: { style:'sticks'},
+        legend: 'none',
       };
 
       var chart = new google.visualization.LineChart(this.el);
 
       console.log("Before draw");
-      chart.draw(data, options);
+
+      chart.draw(data, options_points);
+    
       console.log("After draw");
 
     },

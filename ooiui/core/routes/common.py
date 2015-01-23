@@ -25,11 +25,11 @@ def user_login():
 def basic():
     return render_template('common/basic.html')
 
-@app.route('/chartDemo.html')
+@app.route('/chartDemo')
 def chart_demo():
     return render_template('common/chartDemo.html')
 
-@app.route('/plotsDemo.html')
+@app.route('/plotsDemo')
 def plots_demo():
     return render_template('common/plotsDemo.html')
 
