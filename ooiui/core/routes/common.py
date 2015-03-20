@@ -100,6 +100,16 @@ def plots_demo():
 def alerts_alarms():
     return render_template('common/alertPage.html')
 
+@app.route('/alert', methods=['POST'])
+def alert():
+    print 'alert called'
+    data = json.loads(request.data)
+    print data
+    #r = requests.post(data)
+    #response = requests.post()
+    #print r
+    return jsonify(data)
+    
 @app.route('/FAQ.html')
 def FAQ():
     return render_template('common/FAQ.html')

@@ -21,47 +21,47 @@ var AlertModel = Backbone.Model.extend({
         Instrument: "default",
         Platform: "default"
     },
-    url:" ",
+    url:"/alert",
     
     validation: {
         array: {
-            required: true
+            required:true 
         },
         Platform: {
-            required: true
+            required: false
         },
         Instrument: {
-            required: true
+            required: false
         },
         User: {
-            required: true
+            required: false
         },
         OtherUser:{
-            required: true
+            required: false
         },
         Name: {
-            required: true
+            required: false
         },
         Priority: {
-            required: true
+            required: false
         },
         Description:{
-            required: true
+            required: false
         },
         Email: {
-            required: true
+            required: false
         },
         Redmine: {
-            required: true
+            required: false
         },
         PhoneCall:{
-            required: true
+            required:true 
         },
         TextMessage: {
-            required: true
+            required: false
         },
         LogEvent:{
-            required: true
+            required: false
         }
 
 

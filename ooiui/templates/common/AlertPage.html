@@ -73,7 +73,8 @@
 
         <hr width ='80%'>
         <div class="row col-sm-12">
-          <div class="col-sm-4"> Conditions
+          <div class="col-sm-4"> 
+            Conditions
           <div id="Conditions">
               
           </div>
@@ -89,74 +90,34 @@
            </div>
 
         </div>
-        <div class="col-sm-3">Input
+        <div class="col-sm-2">
+         Input
         <div id='ConditionsInput'name="ConditionsInput">
         </div>
        
         </div>
+        <div class="col-sm-2">
+          Symbol
+        <div id='SymbolInput'> </div>  
+        </div>
+                   
+        <div class="col-sm-3">
+          Users
+          <div id="Users"></div>
+        </div>
         <div class="col-sm-1">
           Remove 
-        <div id='RemoveConditions'> </div>          
+          <div id='RemoveConditions'> </div>          
        
         </div>
-            
-        <div class="col-sm-3">Users
-          <div id="Users"></div>
-          <div class="form-group">         
-                    <select class="form-control" id="UserFilter" name="UserFilter">
-                    </select>
-                 <span class="help-block hidden"></span>
-          </div>
-          <div class="form-group">
-          <button class="btn btn-success" id="userReset"> Reset Filter</button>
-          <span class="help-block hidden"></span>
-          </div>
-         </div>
-         <div class="col-sm-1"> Remove
-         <div id="RemoveUser"></div>
-         </div>
-
+      </div>
         <hr width ='80%'>
         <div>Additional Information</div>
-        <div class="row col-sm-12">
+        <div id="addtionalInformation"></div>
+       
 
-        <div class="col-sm-12">
-        <div class="form-group">
-                  <label for="Name" class="col-sm-3 control-label">Name</label>
-                  <div class="col-sm-9">
-                    <input type="text" class="form-control" id="Name" name="Name" />
-                    <span class="help-block hidden"></span>
-                  </div>
-                </div>
-        </div>
 
-        <div class="col-sm-12">
-        <div class="form-group">
-               <label for="lastname" class="col-sm-3 control-label">Priority</label>
-               <div class="col-sm-9">
-                    <select class="form-control" id="Priority" name="Priority">
-                      <option>Low</option>
-                      <option>Normal</option>
-                      <option>High</option>
-                      <option>Urgent</option>
-                      <option>Immediate</option>
-                    </select>
-                 <span class="help-block hidden"></span>
-             </div>
-          </div>
-        </div>
-        <div class="col-sm-12">
-        <div class="form-group">
-                  <label for="lastname" class="col-sm-3 control-label">Description</label>
-                  <div class="col-sm-9">
-                    <textarea type="text" class="form-control" id="Description" name="Description" /></textarea>
-                   <span class="help-block hidden"></span>
-        </div>
-        </div>
-        </div>
-        </div>
-
-        <hr width='80%'>
+        
         <div>Contact Information</div>
         <div class="row col-sm-12">
 
@@ -230,7 +191,8 @@ _.extend(OOI.prototype, Backbone.Events, {
   login: new LoginModel(),
   models: {
     mapModel: new MapModel(),
-    alertModel: new AlertModel()
+    alertModel: new AlertModel(),
+    userModel: new UserModel()
   
   },
   collections: {
@@ -238,7 +200,8 @@ _.extend(OOI.prototype, Backbone.Events, {
     platform_deployments: new PlatformDeploymentCollection(),
     alertCollection: new AlertCollection(),
     assetTen: new AssetTen(),
-    trouble: new TroubleTicketDropdownCollection() 
+    trouble: new TroubleTicketDropdownCollection(),
+    post: new PostCollection()
   },
   views: {
 
@@ -264,8 +227,8 @@ _.extend(OOI.prototype, Backbone.Events, {
     //--------------------------------------------------------------------------------
     // Views
     //--------------------------------------------------------------------------------
-    this.views.navbar = new NavbarView();
-    $('body').prepend(this.views.navbar.el);
+   this.views.navbar = new NavbarView();
+   $('body').prepend(this.views.navbar.el);
 
        // It allows me access(via ooi{}) models, collections or views inside one another  
     // e.g. I call ooi.mapModel inside the TocView and MapView to access the change in attributes
@@ -289,6 +252,9 @@ _.extend(OOI.prototype, Backbone.Events, {
     
     this.collections.arrays.fetch({reset: true});
 
+   if(this.login.loggedIn()) {
+      this.models.userModel.fetch({url: '/api/current_user'});      
+    }
 
 
    // if(!this.login.loggedIn()) {
@@ -299,8 +265,8 @@ _.extend(OOI.prototype, Backbone.Events, {
     //    ack: function() { console.log("Closed"); }
     //  });
    // }
-   //this.listenTo(this, "login:success", this.onLogin);
-   //this.listenTo(this, "login:logout", this.onLogout);
+   this.listenTo(this, "login:success", this.onLogin);
+   this.listenTo(this, "login:logout", this.onLogout);
     //this.listenTo(this, "streamItemView:streamSelect", function(model) {
    //   $('#map').height(328);
      // $('#plot-row').show();

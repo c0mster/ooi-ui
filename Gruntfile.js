@@ -202,6 +202,8 @@ module.exports = function(grunt) {
             "ooiui/static/js/partials/NewEvent.html",
             "ooiui/static/js/partials/ModalDialog.html",
             "ooiui/static/js/partials/Navbar.html",
+            'ooiui/static/js/partials/LoggedInNavItems.html',
+            'ooiui/static/js/partials/MenuToggle.html',
             "ooiui/static/js/partials/MenuToggle.html"
           ],
           "ooiui/static/js/partials/compiled/FAQ.js" : [
