@@ -7,7 +7,8 @@
 {% block head %}
   <link rel="stylesheet" href="/css/compiled/alertPage.css" type="text/css" />
   <!-- Partials -->
-  
+  <script src="/lib/lunr.js/lunr.js" type="text/javascript"></script>
+ 
   <script src="/js/partials/compiled/alertPage.js" type="text/javascript"></script>
   <script src="/js/compiled/alertPage.js" type="text/javascript"></script>
 
@@ -24,51 +25,33 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="panel">
-            <div class="panel-heading">
+            <div class="panel-heading"><D-^>
               <h2> Alert Page</h2>
             <div class="panel-body">
             <!-- panel-body -->
              <form class="form-vertical" role="form">
-             <div class="form-group">
-                  <label for="Array" class="col-sm-3 control-label">Array</label>
-                  <div class="col-sm-3">
-                   <select class="form-control" id="array" name="array">
-                   </select>
+             <div class="row form-group">
+                  <label for="Array" class="col-sm-12 control-label">Array:
+                  
+                   <div class="form-control" id="array" name="array">
+                 </div></label>
                   <span class="help-block hidden"></span>
-                  </div>
+                  
              </div>
 
-             <div class="form-group">
-                  <label for="Platform" class="col-sm-3 control-label">Platform</label>
-                   <div class="col-sm-3">
-                   <select class="form-control" id="Platform" name="Platform">
-                      <option>Glider</option>
-                      <option>All</option>
-                      <option>Surface Buoy</option>
-                      <option >Mooring</option>
-                      <option>Node</option>
-                      <option>Riser</option>
-                      <option>Profiler</option>
-                      <option>AUV</option>
-                    </select>
+             <div class="row form-group">
+                  <label for="Platform" class="col-sm-12 control-label">Platform:
+                   <div class="form-control" id="Platform" name="Platform">
+                 </div></label>
                   <span class="help-block hidden"></span>
-                  </div>
              </div>          
 
-             <div class="form-group">
-                  <label for="assetReport" class="col-sm-3 control-label">Instrument</label>
-                  <div class="col-sm-3">
-                   <select class="form-control" id="Instrument" name="Instrument">
-                      <option>Glider</option>
-                      <option>Surface Buoy</option>
-                      <option>Mooring</option>
-                      <option>Node</option>
-                      <option>Riser</option>
-                      <option>Profiler</option>
-                      <option>AUV</option>
-                    </select>
-                  <span class="help-block hidden"></span>
-                  </div>
+             <div class="row form-group">
+                  <label  class="col-sm-12 control-label">Instrument
+                  <div class="form-control" id="Instrument" name="Instrument">
+                </div></label>
+
+                   <span class="help-block hidden"></span>
               </div>
 
         <hr width ='80%'>
@@ -79,10 +62,8 @@
               
           </div>
            <div class="form-group">
-                   <select class="form-control" id="ConditionsFilter" name="ConditionsFilter">
-                    </select>
-                   <span class="help-block hidden"></span>
-           </div>   
+             <div id="Filter">Select is here</div>
+          </div>   
 
            <div class="form-group">        
                 <button id="conditionsReset" class="btn btn-success"> Reset Filter</button>
@@ -200,7 +181,7 @@ _.extend(OOI.prototype, Backbone.Events, {
     platform_deployments: new PlatformDeploymentCollection(),
     alertCollection: new AlertCollection(),
     assetTen: new AssetTen(),
-    trouble: new TroubleTicketDropdownCollection(),
+    troubleticketdropdowncollection: new TroubleTicketDropdownCollection(),
     post: new PostCollection()
   },
   views: {
@@ -223,6 +204,9 @@ _.extend(OOI.prototype, Backbone.Events, {
  // }
 
     this.login.fetch({async: false}); // Doesn't actually make an ajax request
+    if(this.login.loggedIn()) {
+        this.models.userModel.fetch({url: '/api/current_user'});      
+    }
 
     //--------------------------------------------------------------------------------
     // Views
@@ -238,23 +222,29 @@ _.extend(OOI.prototype, Backbone.Events, {
     $('#sidebar-wrapper').html(this.views.tocView.el);
     
     
-    this.views.alertFilterView = new AlertFilterView({
-        el: 'form',
-        model: this.models.alertModel,
-        collection: this.collections.alertCollection
-        
-        
-    });
-    
+   
+    //this.views.tocView.bind('platformDeploymentItemView:platformSelect', this.views.alertFliterView.changeUrl);
        //--------------------------------------------------------------------------------
     // Collections Fetch
     //--------------------------------------------------------------------------------
     
     this.collections.arrays.fetch({reset: true});
 
-   if(this.login.loggedIn()) {
-      this.models.userModel.fetch({url: '/api/current_user'});      
-    }
+      
+   this.collections.troubleticketdropdowncollection.fetch({
+      data: $.param({
+        project: "ooinet-user-interface-development"
+      }),
+      reset: true
+    });
+  
+   this.views.alertFilterView = new AlertFilterView({
+        el: 'form',
+        model: this.models.alertModel,
+        
+        collection: this.collections.troubleticketdropdowncollection
+        
+    });
 
 
    // if(!this.login.loggedIn()) {

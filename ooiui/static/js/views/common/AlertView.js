@@ -13,7 +13,6 @@
  * Usage
  * 
  */
-
 Backbone.Validation.configure({
     forceUpdate: true
 });
@@ -41,18 +40,22 @@ _.extend(Backbone.Validation.callbacks, {
 var AlertCollection = Backbone.Collection.extend({
   url: '/api/array',
   parse: function(response, options){
+
     return response.arrays;
   }
 });
 //example only
 var AssetTen = Backbone.Collection.extend({
-  url:'json/asset_ten.json',
+  url:'http://localhost:12575/sensor/inv/CP02PMCO/WFP01/03-CTDPFK000/telemetered/ctdpf_ckl_wfp_instrument',
   parse: function(response, options){
-    return response.assets[0].metaData;
+    
+    return response;
+    
   }
 });
+
+
 var PostCollection = Backbone.Collection.extend({
-  url:'/alert',
   nextOrder: function() {
     if(!this.length){
       return 1;
@@ -64,11 +67,6 @@ var PostCollection = Backbone.Collection.extend({
 //Validations is turned off!!
 
 var AlertFilterView = Backbone.View.extend({
-           
- 
- // template: JST['ooiui/static/js/partials/AlertFilter.html'],
-
- 
 
 
    events: {
@@ -93,7 +91,7 @@ var AlertFilterView = Backbone.View.extend({
             },
 
             setOptions: {
-                validate:true 
+                validate:false 
             }
         },
         '[name=Platform]': {
@@ -111,29 +109,34 @@ var AlertFilterView = Backbone.View.extend({
                 validate: false
             }
         },
-        '[name=ConditionsFilter]': {
-            observe: 'ConditionsFilter',
-            selectOptions:{
-              collections: [],
-              valuePath:'key',
-              valueLabel:'Select To Add Filter',
-
-              defaultOption:{
-                label: 'Select To Add Filter'
-              }  
-            },
-            onSet: function(val){
-              this.addConditions(val);
-
-              return val;
+ //       '[name=ConditionsFilter]': {
+ //           observe: 'ConditionsFilter',
+        //    selectOptions:{
+         //     collections: ['empty','s','w'],
+//
+ //             defaultOption:{
+ //               label: 'Select To Add Filter'
+ //             }  
+  //          },
+  //          onGet: function(val){
+   //           console.log(val.selectOptions.collection);
+   //           console.log('conditon get iscalled');
+   //           return val.selectOptions.collection;
+  //          
+  //          },
+ //          onSet: function(val){
+   //           console.log('are you called');
+  //            this.addConditions(val);
+//
+//              return val;
               
               
-            },
+//           },
 
-            setOptions: {
-                validate: false
-            }
-        },
+   //         setOptions: {
+     //           validate: false
+     //       }
+     //   },
          '[name=Email]': {
             observe: 'Email',
             setOptions: {
@@ -178,48 +181,40 @@ var AlertFilterView = Backbone.View.extend({
         // This hooks up the validation
         // See: http://thedersen.com/projects/backbone-validation/#using-form-model-validation/validation-binding
         Backbone.Validation.bind(this);
-        _.bindAll(this, "render", "submit", "remove", "addConditions", "removeConditions" );
-        //Cannot listen for a change, easily. All html elems are linked to the model
-        //any event will be heard and then change the DOM, 
-        //
-        //
-        //I need to create a collection that holds all of the alert data. alerts table
-        //{id: 1, asset_id:10, user_id : 70, user_name: Bob, assignee_id: 64, assignee_name: Dan, symbot: >, alert: Longitude, priority:5, date: 12-12-12} 
+        _.bindAll(this, "render", "submit", "remove", "addConditions", "removeConditions", "changeArray", "changePlatform", "changeInstrument","addSelect" );
+         
+        this.listenTo(ooi, 'arrayItemView:arraySelect', this.changeArray);
+        this.listenTo(ooi, 'platformDeploymentItemView:platformSelect',this.changePlatform);
+        this.listenTo(ooi, 'instrumentDeploymentItemView:instrumentSelect', this.changeInstrument);
+        this.listenTo(ooi, 'streamItemView:streamSelect', this.changeStream);
         var self = this;
+        //var uFrameList= {};
 
 
-        this.OptionalModel = Backbone.Model.extend();
-          //example only
-         //collections will be moved to main html page
-          ooi.collections.assetTen.fetch({
-            success: function(collection, response){
-             
-              return this;
-            }
-          });
-         this.collection.fetch({
-             success: function(collection, response){
+        this.OptionalModel = Backbone.Model.extend({
+        });
+       
+        this.listenTo(this.collection, 'reset', function(){
+
              self.render();
-
-             return this ; 
-             }
-          });
-         return this;
+        });
     },
+     
 
     render: function () {
+        console.log('render called');
         
         var assetTen = ooi.collections.assetTen;
-        this.bindings["[name=ConditionsFilter]"].selectOptions.collection = (ooi.collections.assetTen.pluck('key'));
-        this.bindings["[name=array]"].selectOptions.collection = this.collection.pluck('display_name');
-        this.bindings["[name=Instrument]"].selectOptions.collection = [ "Mooring", "Sensor", "Sensor Part", "Coastal Glider", "Open Ocean Glider"]; 
-
         this.stickit();
         return this;
     },
     addConditions: function(val){
       //adds a div and input under conditions on the html
       //adds bindings 
+
+      var streamName = val.stream_name; 
+      val = val.param;
+      
       var value = val.replace(/\s+/g, '_');
       var value_description = value + '_description';
       var value_priority = value + '_priority';
@@ -234,19 +229,39 @@ var AlertFilterView = Backbone.View.extend({
          
      $('#ConditionsInput').prepend('<div class="form-group"> <input class="form-control" id='+value+'></input> <span class="help-block hidden"></span></div>');
      
-     $('#RemoveConditions').append('<div class="form-group "> <button class="btn btn-success" id='+  value   + '>'+ 'X' +' </button> <span class="help-block hidden"></span></div>');
+     $('#RemoveConditions').prepend('<div class="form-group "> <button class="btn btn-success" id='+  value   + '>'+ 'X' +' </button> <span class="help-block hidden"></span></div>');
 
 
-     $('#addtionalInformation').prepend('<div name='+value+' class="row col-sm-12"> <div class="col-sm-12"> <div class="form-group"> <label for="Name" class="col-sm-3 control-label">Name</label> <div class="col-sm-9"><div class="form-control"  name='+value+'> '+ val +' </div> <span class="help-block hidden"></span> </div> </div> </div> <div class="col-sm-12"> <div class="form-group"> <label for="priority" class="col-sm-3 control-label">Priority</label> <div class="col-sm-9"> <select class="form-control" id='+value_priority+' > <option>Low</option> <option>Normal</option> <option>High</option> <option>Urgent</option> <option>Immediate</option> </select> <span class="help-block hidden"></span> </div> </div> </div> <div class="col-sm-12"> <div class="form-group"> <label for="lastname" class="col-sm-3 control-label">Description</label> <div class="col-sm-9"> <textarea type="text" class="form-control" id='+value_description+'/></textarea> <span class="help-block hidden"></span> </div> </div> </div><hr width="80%"> </div> ');
+     $('#addtionalInformation').prepend('<div name='+value+' class="row col-sm-12"> <div class="col-sm-12"> <div class="form-group"> <label for="Name" class="col-sm-3 control-label">Name</label> <div class="col-sm-9"><div class="form-control"  name='+value+'> '+ val +' </div> <span class="help-block hidden"></span> </div> </div> </div> <div class="col-sm-12"> <div class="form-group"> <label for="priority" class="col-sm-3 control-label">Priority</label> <div class="col-sm-9"> <select class="form-control" id='+value_priority+' ></select> <span class="help-block hidden"></span> </div> </div> </div> <div class="col-sm-12"> <div class="form-group"> <label for="lastname" class="col-sm-3 control-label">Description</label> <div class="col-sm-9"> <textarea type="text" class="form-control" id='+value_description+'/></textarea> <span class="help-block hidden"></span> </div> </div> </div><hr width="80%"> </div> ');
 
      $('#Users').prepend('<div class="form-group"><select class="form-control" id='+value_user +'> </select> <span class="help-block hidden"></span> </div>');
 
 
      var optionalModel = new this.OptionalModel();
-     optionalModel.set({'alert':value, 'alert_id': ooi.collections.post.nextOrder()});
+     optionalModel.set({
+       'alert':value, 
+       'stream_name': streamName, 
+       'alert_id': ooi.collections.post.nextOrder(),
+       'user_name': ooi.models.userModel.get('user_name'),
+       'user_id': ooi.models.userModel.get('user_id')
+     
+     
+     
+     });
      
      this.addBinding(optionalModel, '#'+value_description, 'description');
-     this.addBinding(optionalModel, '#'+value_priority, 'priority');
+     this.addBinding(optionalModel, '#'+value_priority, {
+       observe:'priority',
+       selectOptions:{
+         collection: [{name:'Low', num: 1},{name:'Normal', num: 2},{name:'High', num:3},{name:'Urgent', num:4},{name:"Immediate", num:5}],
+         labelPath:'name',
+         valuePath:'num'
+         
+
+       }
+
+
+       });
      this.addBinding(optionalModel, '#'+value, 'alert_input');
      this.addBinding(optionalModel, '#'+value_symbol, {
        observe:'symbol',
@@ -258,30 +273,111 @@ var AlertFilterView = Backbone.View.extend({
        }
      });
      this.addBinding(optionalModel, '#'+value_user, {
-       observe:'user',
+       observe:'assignee',
        selectOptions: {
-         collection : ['Administrator','Operator', 'Science User','Current User'],
+         collection : this.collection.pluck('user_name'),
          defaultOption: {
-          label: 'Select To Add Filter'
+          label: 'Add Assignee'
            }
+       },
+       onSet:function(val){
+         console.log(val);
+         var redmineId =this.collection.findWhere({user_name: val});
+         redmineId = redmineId.get(val);
+         optionalModel.set('assignee_id', redmineId);
+
+         console.log(redmineId);
+         return val;
        }
 
        
      } );
-     //console.log(this.model.validate(value));
 
      ooi.collections.post.add(optionalModel);
      console.log(ooi.collections.post);
+     console.log(this.collection);
     },
+    changeArray: function (data) {
+      this.model.set('array',data.get('display_name'));   
+      
+            
+    },
+    changePlatform: function(data){
+      //page should populate at platform level
+      //users might not click below platform
+      //fetch is used to get all children
+      this.model.set('Platform', data.get('display_name'));
+      var model = this.model;
+      var instr = data.instrumentDeployments.fetch({
+        success: function(collection, response){
+          var list = collection.pluck('display_name');
+          console.log(list);
+          model.set('Instrument', list);
+       
+        }
+
+      });
+     
+       
+     this.addSelect();       
+    },
+    changeInstrument: function(data){
+   //   console.log('Instrument selected');
+      
+    },
+    addSelect: function(){
+     // console.log('add select called');
+      var self = this;
+      $('#Filter').html('<select class="form-control" id="ConditionsFilter" name="ConditionsFilter"> </select> <span class="help-block hidden"></span>');
+      var selection =ooi.collections.assetTen.fetch({
+
+        success:function(collection, response){
+          var streamName = response[0].stream_name;
+
+          var keys = Object.keys(response[0]);  
+          keys= _.map(keys, function(item){
+             // console.log(item);
+              var dictionary = {};
+              dictionary.stream_name = streamName;
+              dictionary.param = item;
+              return dictionary;
+
+          });
+          self.addBinding(self.model,"#ConditionsFilter", {
+            observe:'ConditionsFilter',
+            selectOptions: {
+              collection: keys,
+              labelPath: 'param',
+            defaultOption:{
+              label:'Select To Add Filter'
+            },
+                          
+              
+            },
+            onSet: function(val){
+              self.addConditions(val);
+              return val;
+
+
+            }
+         
+        });
+     
+        // console.log(self.model);
+      }
+      });
+
+       
+
+    },
+    changeStream: function(data){
+    },
+
+
     submit: function () {
         var self = this;
         // Check if the model is valid before saving
         // See: http://thedersen.com/projects/backbone-validation/#methods/isvalid
-        //console.log(this.model.validate();
-        console.log(this.model);
-       // this.model.save();
-        console.log(ooi.collections.post);
-        console.log(this.model.isValid());
        // if (this.model.isValid(false)) {
             this.model.save(null, {
               success: function(model, response) {
@@ -305,9 +401,12 @@ var AlertFilterView = Backbone.View.extend({
     removeConditions: function(e){
       //need some assertions or check...
       //clicking too fast messes everything up.
+
       var remove = e.target.id;
-      var button = e.target;
       
+      var button = e.target;
+      console.log(button);
+      console.log(remove);
       
       button.remove();
       $('#'+remove).remove();
@@ -317,17 +416,9 @@ var AlertFilterView = Backbone.View.extend({
       $('[name='+remove+']').remove();
       $('#'+remove).remove();
       $('#'+remove+'_user').remove();
-
-      this.model.unset(remove);
-    
-    },
-    removeUsers: function(e){
-      //need assertions and checks in future.
-      var remove = e.target.id;
-      $('#'+remove).remove();
-      $('#'+remove).remove();
-      //not dynamic User is defined with adding a user
-      this.model.unset('User');
+      
+      ooi.collections.post.remove(ooi.collections.post.findWhere({'alert':remove}));
+      console.log(ooi.collections.post); 
     },
   
     remove: function () {
