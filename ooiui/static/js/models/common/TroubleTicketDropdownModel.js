@@ -28,6 +28,7 @@ var TroubleTicketDropdownCollection = Backbone.Collection.extend({
     if (response && response){
         
     return _.map(response.users, function(u){
+      
       var name = u[0];
       var dictionary ={};
       dictionary[name]= u[1];

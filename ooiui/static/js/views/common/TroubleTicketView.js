@@ -120,7 +120,7 @@ var TroubleTicketView = Backbone.View.extend({
   reset: function() {
     this.model.clear().set('user_name',ooi.models.userModel.get('user_name'));
         
-;
+
     
   },
   submit: function() {
@@ -129,8 +129,10 @@ var TroubleTicketView = Backbone.View.extend({
       this.model.save(null, {
         
         success: function(model, response){
+
           console.log('Ticket created');
 
+          ooi.trigger('TroubleTicketView:submit', this.model);
         },
         error: function(model, response) {
           try {
@@ -145,9 +147,6 @@ var TroubleTicketView = Backbone.View.extend({
         }
       });
     }
-   //returns a user to the home page when submit is clicked,
-   //even if the submit is not correctly validated
-    //ooi.trigger('TroubleTicketView:submit', this.model);
   },
 
   remove: function () {
