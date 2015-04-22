@@ -258,3 +258,9 @@ def get_glider_track():
     token = get_login()
     response = requests.get(app.config['SERVICES_URL'] + '/uframe/get_glider_track/'+request.args['id'], auth=(token, ''), data=request.args)
     return response.text, response.status_code
+
+@app.route('/api/get_mock_alerts', methods=['GET'])
+def get_mock_alerts():
+    response = requests.get(app.config['SERVICES_URL'] + '/get_mock_alerts', data=request.args)
+    return response.text, response.status_code
+

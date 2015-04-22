@@ -21,7 +21,10 @@ module.exports = function(grunt) {
             "ooiui/static/js/partials/TermsDialog.html",
             "ooiui/static/js/partials/Navbar.html",
             "ooiui/static/js/partials/MenuToggle.html",
-             "ooiui/static/js/partials/LoggedInNavItems.html"
+            "ooiui/static/js/partials/LoggedInNavItems.html",
+            "ooiui/static/js/partials/AlertDropdownLoggedIn.html",
+            "ooiui/static/js/partials/AlertLevel.html"
+
           ],
           "ooiui/static/js/partials/compiled/loginDemo.js": [
             /*
@@ -478,6 +481,7 @@ module.exports = function(grunt) {
             'ooiui/static/js/models/common/MapModel.js',
             'ooiui/static/js/models/common/UserModel.js',
             // Views
+            'ooiui/static/js/views/common/AlertNavBarView.js',
             'ooiui/static/js/views/common/DropdownMessagesView.js',
             'ooiui/static/js/views/common/DropdownUserView.js',
             "ooiui/static/js/views/common/NavbarView.js",

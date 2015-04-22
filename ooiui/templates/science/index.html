@@ -6,6 +6,9 @@
 
 {% block head %}
   <link href="/css/compiled/index.css" rel="stylesheet" type="text/css" />
+  <link href="/css/compiled/statusUIIcon.css" rel="stylesheet" type="text/css" />
+  <!-- partials -->
+
   <!-- partials -->
   <script src="/js/partials/compiled/index.js" type="text/javascript"></script>
   <script src="/js/partials/compiled/svgplot.js" type="text/javascript"></script>
@@ -31,6 +34,7 @@
 
   <!-- Page Content -->
   <div id="page-content-wrapper">
+    <div id="alert-level"></div>
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
@@ -113,6 +117,34 @@ _.extend(OOI.prototype, Backbone.Events, {
     // Views
     //--------------------------------------------------------------------------------
     this.views.navbar = new NavbarView();
+
+    if(this.login.loggedIn()){
+      this.views.navbar.dropdownUserView.userModel.on('change', function(){
+          var current_id= self.views.navbar.dropdownUserView.userModel.get('id');
+          //Will need to pass current_id as param when fetching alarms from the db
+         //In future will need to change the fetching procedure 
+          if(current_id !=''){
+          //no initial check for alarms
+            setInterval(function(){
+            self.views.alertNavBarCollection = new AlertNavBarCollection()
+            self.views.alertNavsBarView = new AlertsNavBarView({
+              el: $("#alertDropDown"),
+              collection: self.views.alertNavBarCollection
+              })
+            self.views.navbar.$el.find("#alertColour").css('color', 'red');
+            },15000)
+          }
+       })       
+    }
+
+    this.listenTo(this,'Alert:Level',function(model){
+        self.views.alertLevelModal = new AlertLevelModal({
+        el:$('#alert-level'),
+        model: model
+        })
+        self.views.alertLevelModal.show()
+    });
+
     $('body').prepend(this.views.navbar.el);
 
     this.views.mapModel = new MapModel();

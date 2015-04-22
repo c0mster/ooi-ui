@@ -13,19 +13,28 @@
 
 var NavbarView = Backbone.View.extend({
   events: {
-    'click #menu-toggle' : "menuToggle"
+    'click #menu-toggle' : "menuToggle",
+    'click #dropdownMenu3': "AlertToggle"
   },
   menuToggle: function(e) {
     e.preventDefault(); // Prevent the #about
     this.sidebarToggle();
   },
+  AlertToggle: function(e){
+    //when clicked we change alert navbar back to blue
+    this.$el.find('#alertColour').css('color', '#337ab7');
+    
+
+  },
   initialize: function(options) {
     _.bindAll(this, "render", "sidebarToggle");
-    if(ooi.login.loggedIn()) {
+     console.log(this.$el.find('#navbar-menus') );    
+
+      if(ooi.login.loggedIn()) {
       this.messageView = new DropdownMessagesView({
         collection: new MessageCollection()
       });
-    }
+     }
     this.dropdownUserView = new DropdownUserView({
       model: ooi.login
     });
@@ -59,8 +68,12 @@ var NavbarView = Backbone.View.extend({
     this.$el.find('#navbar-menus').prepend(this.templates.sidebar_toggle());
     // Messages only appear to logged in users
     if(ooi.login.loggedIn()) {
+
+// neeed to render again with alerts
         this.$el.find('#navbar-menus').append(this.templates.logged_in_nav_items());
         this.$el.find('#Science').hide();
+        // this.$el.find('#dropdownMenu3').hide();
+
         //this.$el.find('#navbar-menus').append(this.messageView.el);
     }
     this.$el.find('#navbar-menus').append(this.dropdownUserView.el);

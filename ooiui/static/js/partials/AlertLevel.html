@@ -1,0 +1,41 @@
+<!-- set up the modal to start hidden and fade in and out -->
+<!-- <div id="myModal" class="modal fade"> -->
+<style type="text/css">
+.glyphicon.glyphicon-alert {
+  font-size: 50px;
+}
+</style>
+<div id='modal-alert' class="modal fade bs-example-modal-lg ">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header alert alert-danger" style="text-align: center">
+        <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h1 class="glyphicon glyphicon-alert modal-title" aria-hidden="true"> ALERT</h1> 
+      </div>
+      <div  class="modal-body">
+        <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-4"> 
+            <h3>Alarm Information</h3>
+            <h5>Array: <%=model.get('array') %> </h5>  
+            <h5>Platform: <%= model.get('platform') %> </h5>
+            <h5>Asset: <%= model.get('asset_name') %> </h5>
+            <h5>Description: <%= model.get('description') %> </h5>
+            <h5>Alarm: <%= model.get('alarm') %> </h5>
+          </div>
+        <div class="col-lg-4 col-lg-offset-4">
+            <h3>Action - <button class="btn btn-primary" type="button">Ignore</button></h3>
+            <p>Describes the necessary action(s) to be taken...</p>
+            <h3>Assigned To<h5>Current User</h5></h3>
+          </div>
+        </div>
+          <div class ='row'>
+          <div class="modal-footer" style="text-align:center"> <button class="btn btn-primary" type="button">Event Log</button> <button class="btn btn-primary" type="button">OK</button> </div>
+          </div>
+      </div>
+      </div><!--container !-->
+       </div><!-- /.modal-body !-->
+      </div>
+     </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
