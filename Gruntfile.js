@@ -8,6 +8,8 @@ module.exports = function(grunt) {
           "ooiui/static/js/partials/compiled/index.js" : [
             "ooiui/static/js/partials/TOC.html",
             "ooiui/static/js/partials/TOCItem.html",
+            "ooiui/static/js/partials/ArrayItem.html",
+            "ooiui/static/js/partials/NestedTocItem.html",            
             "ooiui/static/js/partials/TOCParentItem.html",
             "ooiui/static/js/partials/InstrumentItem.html",
             "ooiui/static/js/partials/PlatformItem.html",
@@ -133,6 +135,11 @@ module.exports = function(grunt) {
             "ooiui/static/js/partials/DropdownMessages.html",
             "ooiui/static/js/partials/PlatformItem_AA.html",
             "ooiui/static/js/partials/InstrumentItem_AA.html",
+            "ooiui/static/js/partials/NestedTocItem.html",            
+            "ooiui/static/js/partials/TOCParentItem.html",
+            "ooiui/static/js/partials/InstrumentItem.html",
+            "ooiui/static/js/partials/PlatformItem.html",
+            "ooiui/static/js/partials/ArrayItem.html",
             "ooiui/static/js/partials/DropdownMessage.html",
             "ooiui/static/js/partials/DropdownUserLoggedIn.html",
             "ooiui/static/js/partials/DropdownUserLoggedOut.html",
@@ -185,6 +192,8 @@ module.exports = function(grunt) {
             "ooiui/static/js/partials/LoggedInNavItems.html",
             "ooiui/static/js/partials/PlottingSelection.html",
             "ooiui/static/js/partials/FilterPlottingSelection.html",
+            "ooiui/static/js/partials/PlotEvent.html",
+            "ooiui/static/js/partials/PlotEventTableItem.html"
           ],
           "ooiui/static/js/partials/compiled/plotsDemo.js": [
             "ooiui/static/js/partials/DropdownMessages.html",
@@ -539,11 +548,12 @@ module.exports = function(grunt) {
             'ooiui/static/js/models/common/LoginModel.js',
             'ooiui/static/js/models/common/MapModel.js',
             'ooiui/static/js/models/common/UserModel.js',
+            'ooiui/static/js/models/science/TocModel.js',
             // Views
             'ooiui/static/js/views/common/DropdownMessagesView.js',
             'ooiui/static/js/views/common/DropdownUserView.js',
             "ooiui/static/js/views/common/NavbarView.js",
-            "ooiui/static/js/views/common/SimpleTOCView.js",
+            "ooiui/static/js/views/common/TOCView.js",
             "ooiui/static/js/views/common/MapView.js",
             'ooiui/static/js/views/common/LoginView.js',
             'ooiui/static/js/views/common/ModalDialogView.js',
@@ -787,6 +797,7 @@ module.exports = function(grunt) {
             'ooiui/static/js/models/asset_management/AssetModel.js',
             'ooiui/static/js/models/common/MapModel.js',
             'ooiui/static/js/models/common/UserModel.js',
+            'ooiui/static/js/models/science/TocModel.js',
             //'ooiui/static/js/models/common/TroubleTicketDropdownModel.js',
             // Views
             'ooiui/static/js/views/common/DropdownMessagesView.js',
@@ -959,6 +970,7 @@ module.exports = function(grunt) {
             'ooiui/static/js/models/science/TocPlatformsModel.js',
             'ooiui/static/js/models/science/TocStreamsModel.js',
             'ooiui/static/js/models/science/StreamModel.js',
+            'ooiui/static/js/models/science/PlotEventModel.js',
             // Views
             'ooiui/static/js/views/common/DropdownMessagesView.js',
             'ooiui/static/js/views/common/DropdownUserView.js',
@@ -974,6 +986,7 @@ module.exports = function(grunt) {
             'ooiui/static/js/views/science/AnnotationTableView.js',     
             'ooiui/static/js/views/science/StreamDownloadFormView.js',
             'ooiui/static/js/views/science/PlottingSelectionView.js',
+            'ooiui/static/js/views/science/PlotEventListView.js',
             //'ooiui/static/js/views/science/FilterPlottingSelectionView.js'      
           ],
           'ooiui/static/js/compiled/landingPages.js' : [
@@ -1070,6 +1083,7 @@ module.exports = function(grunt) {
             'ooiui/static/js/models/c2/InstrumentsModel.js',
             'ooiui/static/js/models/c2/PlatformStatusModel.js',
             'ooiui/static/js/models/c2/ArrayNavModel.js',
+            'ooiui/static/js/models/c2/CommandParameterModel.js',
             'ooiui/static/js/models/science/ArrayModel.js',
             'ooiui/static/js/models/common/MessageModel.js',
             'ooiui/static/js/models/common/LoginModel.js',
