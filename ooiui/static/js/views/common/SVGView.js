@@ -139,11 +139,14 @@ var SVGPlotView = SVGView.extend({
   },
   plot: function(options) {
     //requested plot
+    var self = this;
     console.log("plot...")
+
     this.reference_designator = this.model.get('reference_designator')    
     this.stream_name = this.model.get('stream_name')
     options.yvar = this.model.get('yvariable')  
     if('xvar' in options){
+      options.xvar = ["time"]
     }else{
       options.xvar = ["time"]
     } 
@@ -151,11 +154,26 @@ var SVGPlotView = SVGView.extend({
     //set the width of the plot, 90% width
     this.width = (this.$el.width()/100)*90;
 
+    var x_units = ""
+    var y_units = ""
+
     if(options && options.yvar && options.xvar) {      
-      if (options.plotType == 'depthprofile'){        
-        this.xvariable = options.xvar.join();
-        this.yvariable = options.yvar;      
-        this.dpa_flag = this.getDpaFlag(options.xvar)  
+      if (options.plotType == 'depthprofile'){   
+        //Variables are backwards, beware
+        this.xvariable = null
+        var not_list = []
+        $.each( options.yvar[0][0], function( key, value ) {
+          if (value.indexOf("pressure") > -1){
+            self.xvariable = value
+            y_units = self.model.get('units')[self.xvariable]
+          }else{
+            not_list.push(value)
+            x_units = self.model.get('units')[not_list[0]]
+          }          
+        });
+
+        this.yvariable = not_list.join();  
+        this.dpa_flag = "1"     //this.getDpaFlag(options.xvar)  
       }else{
         this.yvariable = options.yvar.join();
         this.xvariable = options.xvar;
@@ -168,9 +186,11 @@ var SVGPlotView = SVGView.extend({
       this.useEvent = options.useEvent.toString();      
       this.plotType = options.plotType;
       this.st = moment(options.start_date).toISOString()
-      this.ed = moment(options.end_date).toISOString()
+      this.ed = moment(options.end_date).toISOString()      
 
-      this.url = '/svg/plot/' + this.reference_designator + '/' + this.stream_name + '?' + $.param({dpa_flag: this.dpa_flag,
+      this.url = '/svg/plot/' + this.reference_designator + '/' + this.stream_name + '?' + $.param({x_units:x_units,
+                                                                                                    y_units:y_units,
+                                                                                                    dpa_flag: this.dpa_flag,
                                                                                                     yvar: this.yvariable , 
                                                                                                     xvar: this.xvariable, 
                                                                                                     height: this.height, 
@@ -182,15 +202,49 @@ var SVGPlotView = SVGView.extend({
                                                                                                     startdate:this.st,                                                                                                    
                                                                                                     enddate:this.ed})
       this.fetch();
+    }else{
+      if (options.plotType == 'depthprofile'){ 
+        $('#bottom-row #plot-view').append('<div class="alert alert-warning fade in"><a href="#" class="close" data-dismiss="alert">×</a><strong>Plot Warning!</strong> Depth profile requires "pressure" selection</div>')
+      }
     }
   },
-  download: function() {
-    if(this.variable != null) {
+  download: function(options) {    
+    this.reference_designator = this.model.get('reference_designator')    
+    this.stream_name = this.model.get('stream_name')
+    var yvar = this.yvariable
+    var xvar = this.xvariable
+    if('xvar'){
+    }else{
+      xvar = ["time"]
+    } 
+
+    //set the width of the plot, 90% width
+    this.width = (this.$el.width()/100)*90;
+
+    if(this.yvariable != null && this.xvariable != null) {            
       this.url = '/svg/plot/' + this.reference_designator + '/' + this.stream_name + '?' + $.param({format: 'png', 
-                                                                                                    yvar: this.variable, 
+                                                                                                    dpa_flag: this.dpa_flag,
+                                                                                                    yvar: this.yvariable , 
+                                                                                                    xvar: this.xvariable, 
                                                                                                     height: this.height, 
-                                                                                                    width: this.width })
-      window.location.href = this.url;
+                                                                                                    width: this.width,
+                                                                                                    scatter:this.useScatter,
+                                                                                                    lines:this.useLine,
+                                                                                                    event:this.useEvent, 
+                                                                                                    plotLayout:this.plotType,
+                                                                                                    startdate:this.st,                                                                                                    
+                                                                                                    enddate:this.ed})
+      //window.open(this.url, '_blank');      
+
+      var a = $("<a>")
+          .attr("href", this.url)
+          .attr("download", this.reference_designator + '_' + this.stream_name+".png")
+          .appendTo("body");
+
+      a[0].click();
+
+      a.remove();
+
     }
   },
   render: function() {
@@ -215,6 +269,7 @@ var SVGPlotView = SVGView.extend({
 var SVGPlotControlView = Backbone.View.extend({
   events: {
     'click #update-plot' : 'onClickPlot',
+    'change #xvar-select' : 'xVarChange', 
     /*
     "switchChange.bootstrapSwitch .bootstrap-switch" : 'onClickPlot',
     'dp.change #start-date' : 'onClickPlot',
@@ -224,7 +279,7 @@ var SVGPlotControlView = Backbone.View.extend({
   initialize: function() { 
     
   },
-  setModel: function(model) {
+  setModel: function(model,updateTimes) {
     var self = this;
     this.model = model;
     this.data = null;    
@@ -236,9 +291,27 @@ var SVGPlotControlView = Backbone.View.extend({
       }
     });
     */
-    this.render();
+    this.render(updateTimes);
   },
   template: JST['ooiui/static/js/partials/SVGPlotControl.html'],
+  xVarChange: function(e) {    
+    var plotType = $('#xvar-select option:selected').text();
+
+    if (plotType=="Time Series"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"Time Series plot for selected parameter.  You may overlay up to 6 other parameters.")
+    }else if(plotType=="T-S Diagram"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"The T-S diagram is a Temperature - Salinity Plot.  The UI uses the density of seawater equation of state to derive the density values.  The density values are shown with gradient lines in the plotting window. The user should select the Temperature and Salinity derived products from a single data stream for this plot to work properly.")
+    }else if(plotType=="Depth Profile"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"The Depth Profile plot uses the Pressure and/or Depth parameter from a data stream, as well as a maxima/minima extrema calculation, to determine singular depth profiles present in the data.  Users should select only a single parameter for this plot type.")
+    }else if(plotType=="Quiver"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"The Quiver plot is designed to be used with two velocitiy parameters.  This plot is used primarily with the Velocity Meters and the Acoustic Doppler Current Profilers.  This plot will provide an arrow to display the direction of the water movement, as well as a gray shadow to represent the magnitude.")
+    }else if(plotType=="Rose"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"The Rose Plot is designed to show the magnitude and direction of water currents and wind movement.  The direction should be represented as a value between 0 and 360.")
+    }else if(plotType=="3D Colored Scatter"){
+      this.$el.find('#xVarTooltip').attr('data-original-title',"The 3D Colored Scatter allows a user to select two parameters as the X and Y axes, then select a 3rd parameter to use as a color map for the plotted points.")
+    }
+
+  },
   onClickPlot: function(e) {    
     var data = {};
     
@@ -264,28 +337,33 @@ var SVGPlotControlView = Backbone.View.extend({
 
     ooi.trigger('SVGPlotControlView:onClickPlot', data);
   },
-  render: function() {
+  render: function(updateTimes) {
     var self = this
-    this.$el.html(this.template({model: this.model}));
-    this.$el.find('.selectpicker').selectpicker();
-    this.$el.find('.bootstrap-switch').bootstrapSwitch();
+    if (updateTimes){
+      this.$el.html(this.template({model: this.model}));
+      this.$el.find('.selectpicker').selectpicker();
+      this.$el.find('.bootstrap-switch').bootstrapSwitch();
 
-    this.$start_date = this.$el.find('#start-date');
-    this.$end_date = this.$el.find('#end-date');
+      this.$el.find('[data-toggle="tooltip"]').tooltip()
     
-    this.$start_date.datetimepicker({defaultDate : moment(this.model.get('start')),
-                                     maxDate: moment(this.model.get('end'))
-                                     });
-    this.$end_date.datetimepicker({defaultDate : moment(this.model.get('end')),
-                                   minDate: moment(this.model.get('start'))
-                                  }); 
+      this.$start_date = this.$el.find('#start-date');
+      this.$end_date = this.$el.find('#end-date');
+    
+    
+      this.$start_date.datetimepicker({defaultDate : moment(this.model.get('start')),
+                                       maxDate: moment(this.model.get('end'))
+                                       });
+      this.$end_date.datetimepicker({defaultDate : moment(this.model.get('end')),
+                                     minDate: moment(this.model.get('start'))
+                                    }); 
 
-    this.$start_date_picker = this.$start_date.data('DateTimePicker');
-    this.$end_date_picker = this.$end_date.data('DateTimePicker');
+      this.$start_date_picker = this.$start_date.data('DateTimePicker');
+      this.$end_date_picker = this.$end_date.data('DateTimePicker');
+    }
 
     this.$type_select = this.$el.find('#type-select');
 
-    //this.$el.find('#xvar-select').prop('disabled', 'disabled');
+    
     var xvar = "time"
     var variables = this.model.get('variable_types');
     this.variable = null;

@@ -592,6 +592,7 @@ module.exports = function(grunt) {
             'ooiui/static/lib/bootstrap-select/dist/js/bootstrap-select.js',
             'ooiui/static/lib/backbone.stickit/backbone.stickit.js',
             'ooiui/static/lib/bootstrap-switch/dist/js/bootstrap-switch.js',
+            'ooiui/static/js/core/common/paginate.js',
             //'ooiui/static/lib/lunr.js/lunr.js',
             'ooiui/static/lib/backlunr/backlunr.js',
             // App
@@ -828,8 +829,9 @@ module.exports = function(grunt) {
             "ooiui/static/lib/wellknown/wellknown.js",
             "ooiui/static/lib/loremjs/lorem.js",
             'ooiui/static/lib/leaflet/dist/leaflet.js',
+            'ooiui/static/lib/moment/moment.js',
+            'ooiui/static/lib/bootstrap3-datetimepicker/src/js/bootstrap-datetimepicker.js',
             'ooiui/static/lib/bootstrap-table/dist/bootstrap-table.min.js',
-            //'ooiui/static/js/core/science/date.js',
             'ooiui/static/lib/bootstrap-editable-table/bootstrap-editable-table.js',
             'ooiui/static/lib/bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js',
             'ooiui/static/lib/bootstrap-table/dist/extensions/filter/bootstrap-table-filter.min.js',
@@ -1137,7 +1139,8 @@ module.exports = function(grunt) {
             "ooiui/static/lib/bootstrap-select/dist/css/bootstrap-select.css",
             "ooiui/static/css/common/backgridall.min.css",
             "ooiui/static/css/filtrify/css/filtrify.css",
-            'ooiui/static/lib/bootstrap-editable-table/bootstrap-editable-table.css'
+            'ooiui/static/lib/bootstrap-editable-table/bootstrap-editable-table.css',
+            "ooiui/static/lib/bootstrap3-datetimepicker/build/css/bootstrap-datetimepicker.min.css"
           ],
           "ooiui/static/css/compiled/signup.css" : [
             "ooiui/static/css/common/userSignUpForm.css",

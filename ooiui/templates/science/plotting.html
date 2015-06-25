@@ -67,8 +67,7 @@
                     <i class="fa fa-caret-down" style="margin-right:200px;"></i>
                   </a>
                   <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a id='download-plot' role="menuitem" tabindex="-1" href="#"><i class="fa fa-download"> Download</i></a></li>
-                    <li role="presentation"><a id='add-plot' role="menuitem" tabindex="-1" href="#"><i class="fa fa-plus"> Add Plot</i></a></li>
+                    <li role="presentation"><a id='download-plot' role="menuitem" tabindex="-1" href="#"><i class="fa fa-download"> Download</i></a></li>                    
                   </ul>
                 </div>
               </div>
@@ -299,28 +298,27 @@ _.extend(OOI.prototype, Backbone.Events, {
     });
     //filter seection : listen to the selection of the parameter
     this.listenTo(this, 'FilterSelectionView:onStreamSelection', function(options) {          
-      //self.views.svgPlotControlView.setModel(options.model);      
+      self.views.svgPlotControlView.setModel(options.model,true);                    
     });
 
     //filter seection : listen to the selection of the parameter
-    this.listenTo(this, 'FilterSelectionView:onParameterSelection', function(options) {          
-    self.collections.plotEventList.fetch({reset: true, data: $.param({ref_des: options.model.get('reference_designator')})});
-    
-    if (options.itemid == "plot-item-selection" ){      
-        
-        self.views.svgPlotControlView.setModel(options.model);                
-        self.views.svgplot.setModel(options.model);
-        
+    this.listenTo(this, 'FilterSelectionView:onParameterSelection', function(options) {  
 
-        //ANNOTATIONS
-        self.collections.annotations.fetch({
-          data: $.param({stream_name: options.model.get('stream_name')}),
-          reset: true
-        });
+      self.collections.plotEventList.fetch({reset: true, data: $.param({ref_des: options.model.get('reference_designator')})});
+      
+      if (options.itemid == "plot-item-selection" ){      
+          options.model.set('units',options.data_units)
+          self.views.svgPlotControlView.setModel(options.model,false);                
+          self.views.svgplot.setModel(options.model);
+          
 
-      }else{
+          //ANNOTATIONS
+          self.collections.annotations.fetch({
+            data: $.param({stream_name: options.model.get('stream_name')}),
+            reset: true
+          });
 
-      }
+        }
     });
     
 
@@ -330,10 +328,11 @@ _.extend(OOI.prototype, Backbone.Events, {
             self.views.plotEventListView.render();
     });
 
-    this.listenTo(this, 'SVGPlotControlView:onClickPlot', function(options) {
+    this.listenTo(this, 'SVGPlotControlView:onClickPlot', function(options) {      
+      
       if (options.plotType == "Depth Profile"){
         options.plotType = "depthprofile"
-        options.yvar = options.xvar;        
+        options.yvar = options.xvar;               
         options.xvar = self.views.plottingItemSelection.getSelectedVars();
       }else if (options.plotType == "Time Series"){
         options.plotType = "timeseries"
